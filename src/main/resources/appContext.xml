@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+        
+    <bean id="duke" class="com.springinaction.springidol.Juggler">
+    	<constructor-arg value="15"/>
+    </bean>
+    
+    <bean id="volunteer" class="com.springinaction.springidol.Volunteer"></bean>
+    <bean id="magician" class="com.springinaction.springidol.Magician"></bean>
+
+     <bean id="audience" class="com.springinaction.springidol.Audience"/>
+     <bean id="audienceAnnotated" class="com.springinaction.springidol.AudienceAnnotated"></bean> 
+     <bean id="magicianAnnotated" class="com.springinaction.springidol.MagicianAnnotated"></bean>
+     
+<!-- Создание прокси для работы с аннотациями @AspectJ
+<aop:aspectj-autoproxy/> will create an AnnotationAwareAspectJAutoProxy-
+Creator in the Spring context and will automatically proxy beans whose methods
+match the pointcuts defined with @Pointcut annotations in @Aspect-annotated beans. -->
+<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+<aop:config>
+	<!--  <aop:aspect ref="audience">
+	
+		<aop:before pointcut="execution(* com.springinaction.springidol.Performer.perform(..))"
+           method="takeSeats"/>
+         
+         <aop:before pointcut="execution(* com.springinaction.springidol.Performer.perform(..))"
+           method="turnOffCellPhones"/>
+         
+         <aop:after-returning pointcut="execution(* com.springinaction.springidol.Performer.perform(..))"
+           method="applaud"/>
+           
+          <aop:after-throwing pointcut="execution(* com.springinaction.springidol.Performer.perform(..))"
+           method="demandRefund"/>
+	
+	</aop:aspect>	
+	-->
+	
+	<!-- именованная pointcat -->
+	<aop:aspect ref="audience">
+		<aop:pointcut id="performance" expression="execution(* com.springinaction.springidol.Performer.perform(..))"/>
+			<aop:before	pointcut-ref="performance" method="takeSeats" />
+			<aop:before pointcut-ref="performance" method="turnOffCellPhones"/>
+			<aop:after-returning pointcut-ref="performance" method="applaud" />
+			<aop:after-throwing pointcut-ref="performance" method="demandRefund" />
+			
+			<!-- Around advise -->
+			<aop:pointcut expression="execution(* com.springinaction.springidol.Performer.perform(..))" id="perfomance2"/>
+			<aop:around method="watchPerformance" pointcut-ref="perfomance2"/>
+	</aop:aspect>
+	
+	<aop:aspect ref="magician">
+		<aop:pointcut id="thinking" expression="execution(* com.springinaction.springidol.Thinker.thinkOfSomething(String)) and args(thoughts)"/>
+		<aop:before pointcut-ref="thinking" method="interceptThoughts" arg-names="thoughts" />
+	</aop:aspect>
+	
+</aop:config>
+
+  
+</beans>
